@@ -2,6 +2,18 @@ ARG PYTHON_VERSION
 
 FROM python:${PYTHON_VERSION}
 
+ENV YQ_BINARY='yq_linux_amd64' \
+    YQ_TARGET_LOCATION='/usr/bin/yq' \
+    YQ_VERSION='v4.40.5' \
+    YQ_SHA256='0d6aaf1cf44a8d18fbc7ed0ef14f735a8df8d2e314c4cc0f0242d35c0a440c95' \
+    TMP_CHECKSUM_PATH='/tmp/CHECKSUMS'
+
+RUN wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${YQ_BINARY} -O "${YQ_TARGET_LOCATION}" \
+    && echo "${YQ_SHA256}  ${YQ_TARGET_LOCATION}" > "${TMP_CHECKSUM_PATH}" \
+    && sha256sum --check "${TMP_CHECKSUM_PATH}" \
+    && rm "${TMP_CHECKSUM_PATH}" \
+    && chmod +x "${YQ_TARGET_LOCATION}"
+
 COPY requirements/poetry.txt /tmp/poetry.txt
 RUN pip install -r /tmp/poetry.txt
 
